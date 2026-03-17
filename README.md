@@ -1,175 +1,185 @@
 # SyllabusEngine
 
-AI-powered study planning platform built with Flask. It helps students upload course syllabi, extract structured timelines, generate weekly study plans, and track progress from one dashboard.
+SyllabusEngine is an AI-powered study planning web app built with Flask. It helps students turn raw syllabus PDFs into structured weekly plans, track progress, and manage study tasks from a single dashboard.
 
-## Features
+## What it does
 
-- User authentication (student and admin roles)
-- PDF syllabus upload and extraction
-- AI-assisted study planning and assistant chat
-- Weekly planning, progress tracking, and calendar view
-- Admin dashboard for monitoring users and parsing status
+- Authentication for students and admin users
+- Upload and parse syllabus PDFs
+- Generate AI-assisted study plans
+- Weekly view, progress tracking, and calendar support
+- Admin dashboard for user and parsing management
 
-## Tech Stack
+## Tech stack
 
 - Python 3.11
 - Flask, Flask-Login, Flask-SQLAlchemy
-- SQLAlchemy ORM
-- Gunicorn (production server)
-- Groq API integration
+- SQLAlchemy
+- Gunicorn
+- Groq API
 
-## Project Structure
+## Clone and run locally
 
-	SyllabusEngine/
-	├─ app.py
-	├─ main.py
-	├─ config.py
-	├─ extensions.py
-	├─ requirements.txt
-	├─ routes/
-	├─ database/
-	├─ ai/
-	├─ pdf/
-	├─ templates/
-	├─ static/
-	├─ uploads/
-	└─ render.yaml
+### 1) Clone repository
 
-## 1. Clone Repository
+```bash
+git clone https://github.com/Code-With-Topper/SyllabusEngine.git
+cd SyllabusEngine
+```
 
-	git clone https://github.com/<your-username>/<your-repo>.git
-	cd SyllabusEngine
-
-Replace the GitHub URL with your real repository.
-
-## 2. Create Virtual Environment
+### 2) Create and activate virtual environment
 
 Windows (PowerShell):
 
-	python -m venv .venv
-	.\.venv\Scripts\Activate.ps1
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
 
 macOS/Linux:
 
-	python3 -m venv .venv
-	source .venv/bin/activate
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
 
-## 3. Install Dependencies
+### 3) Install dependencies
 
-	pip install --upgrade pip
-	pip install -r requirements.txt
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-## 4. Configure Environment Variables
+### 4) Create environment file
 
-Create a .env file in project root:
+Create a `.env` file in the project root:
 
-	SECRET_KEY=replace-with-a-long-random-secret
-	DATABASE_URL=sqlite:///syllabus_engine.db
-	GROQ_API_KEY=your_groq_api_key
-	SENDGRID_API_KEY=
-	MAIL_FROM=noreply@syllabus-engine.com
-	GOOGLE_CLIENT_ID=
-	GOOGLE_CLIENT_SECRET=
+```env
+SECRET_KEY=replace-with-a-long-random-secret
+DATABASE_URL=sqlite:///syllabus_engine.db
+GROQ_API_KEY=your_groq_api_key
+SENDGRID_API_KEY=
+MAIL_FROM=noreply@syllabus-engine.com
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+```
 
-Notes:
+### 5) Start the app
 
-- For local development, SQLite is fine.
-- For production, use PostgreSQL and set DATABASE_URL accordingly.
-
-## 5. Run Locally
-
-Development mode:
-
-	python app.py
+```bash
+python app.py
+```
 
 or
 
-	flask --app app.py run --debug
+```bash
+flask --app app.py run --debug
+```
 
-App will start on:
+App URL: `http://127.0.0.1:5000`
 
-	http://127.0.0.1:5000
+## Production run command
 
-## 6. Production Start Command
+```bash
+gunicorn "app:create_app()" --workers 2 --bind 0.0.0.0:$PORT --timeout 120
+```
 
-This project uses Gunicorn in production:
+## Deploy on Render
 
-	gunicorn "app:create_app()" --workers 2 --bind 0.0.0.0:$PORT --timeout 120
+This repository includes `render.yaml` for Blueprint deployment.
 
-## 7. Deploy on Render
+### Option A: Blueprint (recommended)
 
-This repo already includes render.yaml. You can deploy in two ways:
+1. Push latest code to GitHub.
+2. In Render, select New -> Blueprint.
+3. Connect this repository.
+4. Render will create the web service and database from `render.yaml`.
 
-### Option A: Blueprint Deploy (recommended)
-
-1. Push this project to GitHub.
-2. In Render, choose New + and select Blueprint.
-3. Connect your repository.
-4. Render will read render.yaml and create:
-   - Web service
-   - PostgreSQL database
-
-### Option B: Manual Web Service
-
-Use these settings:
+### Option B: Manual setup
 
 - Environment: Python
-- Build command: pip install -r requirements.txt
-- Start command: gunicorn "app:create_app()" --workers 2 --bind 0.0.0.0:$PORT --timeout 120
+- Build command: `pip install -r requirements.txt`
+- Start command: `gunicorn "app:create_app()" --workers 2 --bind 0.0.0.0:$PORT --timeout 120`
 
-Set environment variables:
+Required environment variables:
 
-- SECRET_KEY (generate a secure value)
-- GROQ_API_KEY
-- DATABASE_URL (from Render PostgreSQL)
-- PYTHON_VERSION=3.11
+- `SECRET_KEY`
+- `GROQ_API_KEY`
+- `DATABASE_URL`
+- `PYTHON_VERSION=3.11`
 
-## 8. Default Admin User
+## Default admin account
 
-On first startup, app initialization creates a default admin account if it does not already exist.
+On first startup, the app seeds a default admin if not present.
 
-- Email: soumya@admin.com
-- Name: Soumya
+- Email: `soumya@admin.com`
+- Name: `Soumya`
 
-Important: Change the default admin password immediately after first login in production.
+Change the default admin password immediately after first login in production.
 
-## 9. Common Commands
+## Project layout
 
-Run app:
+```text
+SyllabusEngine/
+|- app.py
+|- main.py
+|- config.py
+|- extensions.py
+|- requirements.txt
+|- render.yaml
+|- ai/
+|- database/
+|- pdf/
+|- routes/
+|- static/
+|- templates/
+`- uploads/
+```
 
-	python app.py
+## Common commands
+
+Run local server:
+
+```bash
+python app.py
+```
 
 Run with Gunicorn locally:
 
-	gunicorn "app:create_app()" --bind 127.0.0.1:8000 --workers 2
+```bash
+gunicorn "app:create_app()" --bind 127.0.0.1:8000 --workers 2
+```
 
-Freeze dependencies:
+Update pinned dependencies:
 
-	pip freeze > requirements.txt
+```bash
+pip freeze > requirements.txt
+```
 
-## 10. Troubleshooting
+## Troubleshooting
 
-Dependency install fails on deploy:
+Install/build failures on deploy:
 
-- Ensure Python version is pinned to 3.11 (use .python-version and/or PYTHON_VERSION env var).
-- Re-deploy after dependency updates.
+- Keep Python pinned to 3.11 (`.python-version` and `PYTHON_VERSION`).
+- Re-deploy after updating dependencies.
 
-Duplicate admin creation log on multi-worker startup:
+Duplicate admin messages during startup:
 
-- This is handled safely with IntegrityError rollback.
-- One worker creates the admin and others continue normally.
+- Expected with multi-worker boot.
+- Startup seeding is protected against race conditions.
 
-Database URL issues:
+Database connection issues:
 
-- If using Render, make sure DATABASE_URL is mapped from the managed PostgreSQL instance.
+- Verify `DATABASE_URL` is set correctly.
+- On Render, map it from the managed PostgreSQL service.
 
-## 11. Security Checklist Before Production
+## Security checklist
 
-- Replace all default secrets.
-- Rotate default admin credentials.
-- Enable HTTPS (managed by Render).
-- Restrict admin access and monitor logs.
+- Use a strong `SECRET_KEY`.
+- Change default admin credentials.
+- Keep sensitive keys only in environment variables.
+- Review logs and restrict admin access.
 
-## 12. License
+## License
 
-Add your preferred license (MIT/Apache-2.0/etc.) in a LICENSE file.
+Add a `LICENSE` file (MIT, Apache-2.0, or your preferred license).
