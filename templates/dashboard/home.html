@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block body_class %}page-dashboard{% endblock %}
+{% block content %}
+
+<div class="dashboard-layout">
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">My Subjects</div>
+      {% for sd in subject_data %}
+      <a href="{{ url_for('study_plan.week_grid', subject_id=sd.subject.id) }}"
+         class="sidebar-subject" style="--subject-color: {{ sd.subject.color }}">
+        <span class="subject-dot"></span>
+        <span class="subject-name">{{ sd.subject.name }}</span>
+        <span class="subject-pct">{{ sd.completion }}%</span>
+      </a>
+      {% endfor %}
+      <a href="{{ url_for('subjects.index') }}" class="sidebar-add-btn">+ Add Subject</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Quick Links</div>
+      <a href="{{ url_for('upload.upload_page') }}" class="sidebar-link">📄 Upload Syllabus</a>
+      <a href="{{ url_for('subjects.index') }}" class="sidebar-link">📚 All Subjects</a>
+      {% if subject_data %}
+      <a href="{{ url_for('assistant.chat_page', subject_id=subject_data[0].subject.id) }}" class="sidebar-link">🤖 Ask Kai</a>
+      {% endif %}
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <div class="dashboard-main">
+    <div class="dashboard-header">
+      <div>
+        <h1>Welcome back, {{ current_user.name.split()[0] }} 👋</h1>
+        <p class="text-muted">{{ today.strftime('%A, %B %d, %Y') }}</p>
+      </div>
+      <a href="{{ url_for('upload.upload_page') }}" class="btn btn-primary">+ Upload Syllabus</a>
+    </div>
+
+    {% if not subject_data %}
+    <!-- ── EMPTY STATE ── -->
+    <div class="empty-state">
+      <span class="empty-icon">📚</span>
+      <h2>No subjects yet</h2>
+      <p>Add a subject and upload your first syllabus to get your entire semester organized automatically in 60 seconds.</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <a href="{{ url_for('subjects.index') }}" class="btn btn-primary btn-lg">+ Add Subject</a>
+        <a href="{{ url_for('upload.upload_page') }}" class="btn btn-outline btn-lg">Upload Syllabus</a>
+      </div>
+    </div>
+
+    {% else %}
+    <!-- ── SUBJECT CARDS ── -->
+    <div class="cards-grid">
+      {% for sd in subject_data %}
+      {% set s = sd.subject %}
+      <div class="subject-card" style="--card-color: {{ s.color }}">
+        <div class="card-accent-bar"></div>
+        <div class="card-header">
+          <div>
+            <h3>{{ s.name }}</h3>
+            <p class="text-muted" style="font-size:.78rem">
+              {{ s.semester_length }} weeks
+              {% if s.start_date %} · Started {{ s.start_date.strftime('%b %d') }}{% endif %}
+            </p>
+          </div>
+          {% if sd.current_week %}
+          <span class="week-badge">Week {{ sd.current_week.week_number }}</span>
+          {% endif %}
+        </div>
+
+        {% if sd.plan %}
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" style="width: {{ sd.completion }}%"></div>
+          </div>
+          <div class="card-meta">{{ sd.completion }}% complete</div>
+
+          {% if sd.current_week and sd.current_week.get_topics() %}
+          <div class="card-topics">
+            {% for t in sd.current_week.get_topics()[:3] %}
+              <span class="topic-chip">{{ t }}</span>
+            {% endfor %}
+            {% if sd.current_week.get_topics()|length > 3 %}
+              <span class="topic-chip">+{{ sd.current_week.get_topics()|length - 3 }} more</span>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          <div class="card-actions">
+            <a href="{{ url_for('study_plan.week_grid', subject_id=s.id) }}" class="btn btn-primary btn-sm">View Plan</a>
+            <a href="{{ url_for('study_plan.progress', subject_id=s.id) }}" class="btn btn-outline btn-sm">Progress</a>
+            <a href="{{ url_for('assistant.chat_page', subject_id=s.id) }}" class="btn btn-ghost btn-sm">🤖 Kai</a>
+          </div>
+        {% else %}
+          <p class="card-no-plan">No syllabus uploaded yet</p>
+          <div class="card-actions">
+            <a href="{{ url_for('upload.upload_page', subject_id=s.id) }}" class="btn btn-primary btn-sm">Upload Syllabus →</a>
+          </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- ── UPCOMING DEADLINES ── -->
+    {% if upcoming_deadlines %}
+    <div class="section-block">
+      <h2 class="section-heading">⏰ Upcoming Deadlines</h2>
+      <div class="deadlines-list">
+        {% for a in upcoming_deadlines %}
+        <div class="deadline-item">
+          <div class="deadline-dot" style="background: {{ a.subject.color }}"></div>
+          <div class="deadline-info">
+            <span class="deadline-title">{{ a.title }}</span>
+            <span class="deadline-subject text-muted" style="font-size:.78rem"> · {{ a.subject.name }}</span>
+          </div>
+          <div class="deadline-date">
+            {% set days = (a.due_date - today).days %}
+            {% if days == 0 %}
+              <span class="badge badge-red">Due Today</span>
+            {% elif days == 1 %}
+              <span class="badge badge-orange">Tomorrow</span>
+            {% elif days <= 3 %}
+              <span class="badge badge-amber">{{ days }} days</span>
+            {% else %}
+              <span class="badge badge-gray">{{ a.due_date.strftime('%b %d') }}</span>
+            {% endif %}
+          </div>
+          <button class="check-btn {% if a.is_completed %}checked{% endif %}"
+                  data-id="{{ a.id }}" data-type="assignment"
+                  onclick="toggleProgress(this)" title="Mark complete">
+            {% if a.is_completed %}✓{% else %}○{% endif %}
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function toggleProgress(btn) {
+  const id = btn.dataset.id;
+  const type = btn.dataset.type;
+  const res = await fetch('/api/progress/toggle', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, type })
+  });
+  const data = await res.json();
+  if (data.success) {
+    btn.classList.toggle('checked', data.completed);
+    btn.textContent = data.completed ? '✓' : '○';
+  }
+}
+</script>
+{% endblock %}

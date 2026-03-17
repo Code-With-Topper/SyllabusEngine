@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block body_class %}page-admin{% endblock %}
+{% block content %}
+<div class="admin-layout">
+  <nav class="admin-sidebar">
+    <a href="{{ url_for('admin.index') }}" class="{% if request.endpoint == 'admin.index' %}active{% endif %}">📊 Dashboard</a>
+    <a href="{{ url_for('admin.users') }}" class="{% if request.endpoint == 'admin.users' %}active{% endif %}">👥 Users</a>
+    <a href="{{ url_for('admin.syllabi') }}" class="{% if request.endpoint == 'admin.syllabi' %}active{% endif %}">📄 Syllabi</a>
+    <a href="{{ url_for('admin.failed_parses') }}" class="{% if request.endpoint == 'admin.failed_parses' %}active{% endif %}">❌ Failed Parses</a>
+  </nav>
+  <main class="admin-main">
+    {% block admin_content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

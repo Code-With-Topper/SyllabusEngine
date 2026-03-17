@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block body_class %}page-home{% endblock %}
+{% block content %}
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">✨ AI-Powered Study Planning — Powered by Groq Llama-3</div>
+    <h1 class="hero-title">
+      Upload your syllabus.<br>
+      <span class="hero-title-accent">Own your semester.</span>
+    </h1>
+    <p class="hero-subtitle">
+      Stop drowning in messy PDF syllabi. Upload once and get a structured week-by-week study plan,
+      smart deadline tracking, 8 AI study modes, and a personal study buddy — completely automatically.
+    </p>
+<div class="hero-cta">
+      <div class="role-login-grid">
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg role-btn-student">
+          👨‍🎓 Student Login
+        </a>
+<a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-lg role-btn-admin">
+          🛡️ Admin Login
+        </a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><strong>60 sec</strong><span>to organize a semester</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><strong>2-pass AI</strong><span>extraction pipeline</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><strong>8 modes</strong><span>AI study assistant</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><strong>100% free</strong><span>to host on Render</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="section how-it-works">
+  <div class="container">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-title">From messy PDF to organized semester in 3 steps</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-icon">📄</div>
+        <h3>Upload Your Syllabus</h3>
+        <p>Drop in any PDF — scanned, digital, tables or paragraphs. OCR fallback handles scanned pages automatically.</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-icon">🤖</div>
+        <h3>2-Pass AI Analysis</h3>
+        <p>Pass 1 extracts raw facts. Pass 2 builds your structured plan. You confirm every deadline before anything is saved.</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-icon">🎯</div>
+        <h3>Study on Autopilot</h3>
+        <p>Week-by-week plan, progress tracking, 8 AI study modes, and a personal tutor that knows your exact syllabus.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section class="section features" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="container">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything you need to finish the semester strong</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📅</div>
+        <h3>Smart Week Planner</h3>
+        <p>Each week shows topics, study hours, assignments, and a difficulty rating. Colour-coded so heavy weeks are always visible.</p>
+      </div>
+      <div class="feature-card feature-card-accent">
+        <div class="feature-icon">✅</div>
+        <h3>Confirmation Screen</h3>
+        <p>Review and edit every extracted deadline before it's saved. No wrong dates ever sneak into your plan.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3>8 AI Study Modes</h3>
+        <p>Explain topics, generate exam notes, create quizzes, solve doubts, list important questions, revise fast, solve math, write essays.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎤</div>
+        <h3>Voice + Photo Input</h3>
+        <p>Speak your question or upload a photo of your textbook. Kai reads it and answers instantly.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <h3>Multi-Language Support</h3>
+        <p>Toggle translated answers in any session. Kai can explain concepts in your preferred language at the click of a button.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Progress Tracking</h3>
+        <p>Mark topics and assignments done. Visual progress bars per week and per subject update in real time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── AI MODES SHOWCASE ── -->
+<section class="section" style="background:var(--bg)">
+  <div class="container">
+    <div class="section-label">AI Study Assistant</div>
+    <h2 class="section-title">8 study modes — one AI, every need</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem">
+      {% set modes = [
+        ('📖','Explain Topic','Clear explanation + examples'),
+        ('📝','Generate Notes','Exam-ready structured notes'),
+        ('🧠','Practice Quiz','MCQ + short + long answers'),
+        ('❓','Solve My Doubt','Can\'t understand clearly'),
+        ('📋','Important Qs','Board exam question focus'),
+        ('⚡','Quick Revision','Last-minute summary'),
+        ('📐','Math Solver','Full step-by-step solve'),
+        ('✍️','Essay / Letter','Writing & applications'),
+      ] %}
+      {% for icon, name, desc in modes %}
+      <div class="feature-card" style="text-align:center;padding:1.25rem 1rem">
+        <div style="font-size:2rem;margin-bottom:.5rem">{{ icon }}</div>
+        <h3 style="font-size:.92rem;margin-bottom:.3rem">{{ name }}</h3>
+        <p style="font-size:.78rem">{{ desc }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    <div style="text-align:center">
+      <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-lg">Try All 8 Modes Free →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA BANNER ── -->
+<section class="section cta-banner">
+  <div class="container">
+    <div class="cta-card">
+      <h2>Ready to stop winging it?</h2>
+      <p>Upload your first syllabus and have your entire semester organized in 60 seconds.</p>
+      <a href="{{ url_for('auth.signup') }}" class="btn btn-white btn-xl">Upload Your First Syllabus →</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

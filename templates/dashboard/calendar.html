@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Calendar — {{ subject.name }}{% endblock %}
+{% block body_class %}page-dashboard{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/index.global.min.css">
+<style>
+  #calendar .fc-toolbar-title { font-family:'Outfit',sans-serif !important; font-size:1.1rem !important; font-weight:700 !important; }
+  #calendar .fc-button { font-family:'Inter',sans-serif !important; font-size:.82rem !important; font-weight:600 !important; }
+  #calendar .fc-button-primary { background:var(--primary) !important; border-color:var(--primary) !important; }
+  #calendar .fc-button-primary:hover { background:var(--primary-d) !important; }
+  #calendar .fc-button-primary:not(.fc-button-active):not(.fc-prev-button):not(.fc-next-button):not(.fc-today-button) { background:var(--surface) !important; color:var(--text) !important; border-color:var(--border2) !important; }
+  #calendar .fc-day-today { background:var(--primary-ll) !important; }
+  #calendar .fc-event { border-radius:4px !important; font-size:.78rem !important; font-weight:500 !important; padding:1px 4px !important; }
+  #calendar .fc-col-header-cell { background:var(--bg2) !important; font-family:'Inter',sans-serif !important; font-size:.8rem !important; font-weight:600 !important; color:var(--text2) !important; }
+  #calendar { font-family:'Inter',sans-serif !important; }
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="page-container">
+
+  <!-- ── PAGE HEADER ── -->
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a href="{{ url_for('subjects.index') }}">Subjects</a> /
+        <a href="{{ url_for('study_plan.week_grid', subject_id=subject.id) }}">{{ subject.name }}</a> /
+        Calendar
+      </div>
+      <h1>📅 Calendar View</h1>
+      <p class="text-muted">All deadlines and exams for {{ subject.name }}</p>
+    </div>
+    <div class="page-header-actions">
+      <a href="{{ url_for('study_plan.week_grid', subject_id=subject.id) }}" class="btn btn-outline">
+        ← Week Grid
+      </a>
+    </div>
+  </div>
+
+  <!-- ── LEGEND ── -->
+  <div class="calendar-legend" style="margin-bottom:1rem">
+    <span class="cal-legend-item">
+      <span class="cal-dot" style="background:#f97316"></span> Assignment deadline
+    </span>
+    <span class="cal-legend-item">
+      <span class="cal-dot" style="background:#ef4444"></span> Exam / Quiz
+    </span>
+    <span class="cal-legend-item">
+      <span class="cal-dot" style="background:#6366f1"></span> Study session
+    </span>
+  </div>
+
+  <!-- ── CALENDAR ── -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+              padding:1.25rem;box-shadow:var(--sh)">
+    <div id="calendar"></div>
+  </div>
+
+  <!-- ── EVENT LIST ── -->
+  {% set events_data = events | tojson | safe %}
+  <div style="margin-top:1.5rem">
+    <h2 class="section-heading">All Events</h2>
+    <div id="events-list" style="display:flex;flex-direction:column;gap:6px">
+      <!-- populated by JS -->
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/index.global.min.js"></script>
+<script>
+const events = {{ events | safe }};
+
+document.addEventListener('DOMContentLoaded', function () {
+  const cal = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    initialView: 'dayGridMonth',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,listWeek'
+    },
+    events: events,
+    eventClick: function (info) {
+      const start = info.event.start ? info.event.start.toLocaleDateString('en-GB', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      }) : 'Date unknown';
+      alert(info.event.title + '\n' + start);
+    },
+    height: 'auto',
+    nowIndicator: true,
+  });
+  cal.render();
+
+  // Populate event list below calendar
+  const list = document.getElementById('events-list');
+  if (events.length === 0) {
+    list.innerHTML = '<p class="text-muted" style="font-size:.88rem">No events found. Upload a syllabus to generate calendar events.</p>';
+    return;
+  }
+  const sorted = [...events].sort((a, b) => new Date(a.start) - new Date(b.start));
+  sorted.forEach(ev => {
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:.85rem';
+    const dot = `<span style="width:10px;height:10px;border-radius:50%;background:${ev.color};flex-shrink:0"></span>`;
+    const date = new Date(ev.start).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    div.innerHTML = `${dot}<span style="flex:1;font-weight:500">${ev.title}</span><span style="color:var(--text3)">${date}</span>`;
+    list.appendChild(div);
+  });
+});
+</script>
+{% endblock %}
