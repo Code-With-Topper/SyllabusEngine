@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from sqlalchemy.exc import IntegrityError
 from config import Config
 from dotenv import load_dotenv
 from extensions import db, login_manager
@@ -59,8 +60,13 @@ def create_app():
             )
             admin_user.set_password(admin_password)
             db.session.add(admin_user)
-            db.session.commit()
-            print(f"✅ Default admin created: {admin_email} / {admin_password}")
+            try:
+                db.session.commit()
+                print(f"✅ Default admin created: {admin_email}")
+            except IntegrityError:
+                # Multiple workers can race on first boot; one insert wins, others should continue.
+                db.session.rollback()
+                print(f"ℹ️ Admin already exists (created by another worker): {admin_email}")
         else:
             print(f"ℹ️ Admin already exists: {admin_email}")
 
